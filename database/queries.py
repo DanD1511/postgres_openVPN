@@ -16,3 +16,13 @@ class UserQueries:
             raise QueryError(f"Error al ejecutar la consulta: {e}")
         finally:
             cursor.close()
+
+    def fetch_user_by_email(self, email):
+        cursor = self.connection.cursor()
+        try:
+            cursor.execute('SELECT email, "DigSilentPassword" FROM auth_user WHERE email = %s;', (email,))
+            return cursor.fetchone()
+        except psycopg2.Error as e:
+            raise QueryError(f"Error al ejecutar la consulta: {e}")
+        finally:
+            cursor.close()

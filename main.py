@@ -1,18 +1,19 @@
+import sys
+from PyQt6.QtWidgets import QApplication
 from database.connection import DatabaseConnection
 from database.queries import UserQueries
-from datasource.db_datasource import DBConfig
 from services.user_service import UserService
-from utils.error_handler import QueryError, ConnectionDBError
+from ui.login_window import LoginWindow
 
 
 def main():
-    db_config = DBConfig()
+    # Configuración de la conexión a la base de datos
     db_conn = DatabaseConnection(
-        dbname=db_config.dbname,
-        user=db_config.user,
-        password=db_config.password,
-        host=db_config.host,
-        port=db_config.port
+        dbname="ECS",
+        user="postgres",
+        password="0129",
+        host="localhost",
+        port="5432"
     )
 
     try:
@@ -20,16 +21,15 @@ def main():
         user_queries = UserQueries(connection)
         user_service = UserService(user_queries)
 
-        # Obtener y mostrar todos los usuarios
-        users = user_service.get_all_users()
-        for user in users:
-            print(f"Email: {user.email}, Password: {user.dig_silent_password}")
+        # Inicialización de la aplicación PyQt6
+        app = QApplication(sys.argv)
+        login_window = LoginWindow(user_service)
+        login_window.show()
 
-    except ConnectionDBError as ce:
-        print(ce)
+        sys.exit(app.exec())
 
-    except QueryError as qe:
-        print(qe)
+    except Exception as e:
+        print(f"Error: {e}")
 
     finally:
         db_conn.close()
